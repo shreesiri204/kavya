@@ -23,14 +23,18 @@ import java.nio.file.DirectoryStream;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+    private final Path processedFileLocation;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
                 .toAbsolutePath().normalize();
+        this.processedFileLocation = Paths.get(fileStorageProperties.getProcessedDir())
+                .toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
+            Files.createDirectories(this.processedFileLocation);
         } catch (Exception ex) {
             throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
         }
@@ -56,22 +60,31 @@ public class FileStorageService {
         }
     }
     
-    public Path getFilePath(MultipartFile file) {
-        // Normalize file name
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-
+    public String getFilePath(String file) {
+       
         try {
-            // Check if the file's name contains invalid characters
-            if(fileName.contains("..")) {
-                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
+            if(file.contains("..")) {
+                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + file);
             }
-
-            // get target location (Replacing existing file with the same name)
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            String targetLocation = this.fileStorageLocation+file;
            
             return targetLocation;
         } catch (Exception ex) {
-            throw new FileStorageException("Could not find file " + fileName + ". Please try again!", ex);
+            throw new FileStorageException("Could not find file " + file + ". Please try again!", ex);
+        }
+    }
+    
+    public String getprocessedFilePath(String file) {
+        
+        try {
+            if(file.contains("..")) {
+                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + file);
+            }
+            String targetLocation = this.processedFileLocation+file;
+           
+            return targetLocation;
+        } catch (Exception ex) {
+            throw new FileStorageException("Could not find file " + file + ". Please try again!", ex);
         }
     }
     

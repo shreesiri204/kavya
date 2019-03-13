@@ -42,9 +42,10 @@ public class FileController {
     }
     
     @PostMapping("/transcodeFile")
-    public  void transcodeFile(@RequestParam("file") MultipartFile file) {
-        Path fileName = fileStorageService.getFilePath(file);
-        String command = "ffmpeg -y -i"+ fileName + "-c:v libx264 -x264opts \"keyint=24:min-keyint=24:no-scenecut\" -r 24 -c:a aac -b:a 128k -strict -2 -bf 1 -b_strategy 0 -sc_threshold 0 -pix_fmt yuv420p -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -b:v:0 400k  -filter:v:0 \"scale=-2:240\" -profile:v:0 baseline -b:v:1 700k  -filter:v:1 \"scale=-2:360\" -profile:v:1 main -b:v:1 1250k  -filter:v:1 \"scale=-2:480\" -profile:v:1 main -b:v:2 2500k -filter:v:2 \"scale=-2:720\" -profile:v:2 high /root/mp4/"+file;
+    public  void transcodeFile(@RequestParam("filename") String filename) {
+        String fileName = fileStorageService.getFilePath(filename);
+        String processedFilePath = fileStorageService.getprocessedFilePath(filename);
+        String command = "ffmpeg -y -i"+ fileName + "-c:v libx264 -x264opts \"keyint=24:min-keyint=24:no-scenecut\" -r 24 -c:a aac -b:a 128k -strict -2 -bf 1 -b_strategy 0 -sc_threshold 0 -pix_fmt yuv420p -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -b:v:0 400k  -filter:v:0 \"scale=-2:240\" -profile:v:0 baseline -b:v:1 700k  -filter:v:1 \"scale=-2:360\" -profile:v:1 main -b:v:1 1250k  -filter:v:1 \"scale=-2:480\" -profile:v:1 main -b:v:2 2500k -filter:v:2 \"scale=-2:720\" -profile:v:2 high" +processedFilePath;
         try {
 			Runtime.getRuntime().exec(new String[] {"cmd", command, "Start"});
 		} catch (IOException e) {
