@@ -66,7 +66,7 @@ public class FileStorageService {
             if(file.contains("..")) {
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + file);
             }
-            String targetLocation = this.fileStorageLocation+file;
+            String targetLocation = this.fileStorageLocation+"/"+file;
            
             return targetLocation;
         } catch (Exception ex) {
@@ -80,7 +80,7 @@ public class FileStorageService {
             if(file.contains("..")) {
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + file);
             }
-            String targetLocation = this.processedFileLocation+file;
+            String targetLocation = this.processedFileLocation+"/"+file;
            
             return targetLocation;
         } catch (Exception ex) {
