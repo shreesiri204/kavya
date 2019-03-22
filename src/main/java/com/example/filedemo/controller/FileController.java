@@ -2,9 +2,13 @@ package com.example.filedemo.controller;
 
 import com.example.filedemo.payload.UploadFileResponse;
 import com.example.filedemo.service.FileStorageService;
+import com.example.filedemo.list.ListFiles;
+import com.example.filedemo.list.VideoList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,6 +31,9 @@ public class FileController {
 
     @Autowired
     private FileStorageService fileStorageService;
+    
+    private List<ListFiles> listFiles;
+
 
     @PostMapping("/uploadFile")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
@@ -41,6 +48,7 @@ public class FileController {
                 file.getContentType(), file.getSize());
     }
     
+    
     @PostMapping("/transcodeFile")
     public  void transcodeFile(@RequestParam("filename") String filename) {
         String fileName = fileStorageService.getFilePath(filename);
@@ -48,13 +56,17 @@ public class FileController {
         String command = "ffmpeg -y -i"+ fileName + "-c:v libx264 -x264opts \"keyint=24:min-keyint=24:no-scenecut\" -r 24 -c:a aac -b:a 128k -strict -2 -bf 1 -b_strategy 0 -sc_threshold 0 -pix_fmt yuv420p -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -map 0:v:0 -map 0:a:0 -b:v:0 400k  -filter:v:0 \"scale=-2:240\" -profile:v:0 baseline -b:v:1 700k  -filter:v:1 \"scale=-2:360\" -profile:v:1 main -b:v:1 1250k  -filter:v:1 \"scale=-2:480\" -profile:v:1 main -b:v:2 2500k -filter:v:2 \"scale=-2:720\" -profile:v:2 high" +processedFilePath;
         try {
 			Runtime.getRuntime().exec(new String[] {"cmd", command, "Start"});
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			logger.info("Problem while executing the command." + command);
 		}
-        
-
+     }
     
+    @GetMapping(path = "/listFiles")
+    public VideoList listFiles() {
+       VideoList lists= fileStorageService.getAllVideos();
+       return lists;
     }
 
     @PostMapping("/uploadMultipleFiles")
